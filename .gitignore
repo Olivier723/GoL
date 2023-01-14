@@ -1,3 +1,4 @@
 bin/
 GoL
 GoL-SDL
+.gitignore
