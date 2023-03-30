@@ -1,5 +1,5 @@
 #include "display-GoL.h"
-
+#ifdef GRAPHIC
 
 
 /**
@@ -9,7 +9,7 @@
  * @param cell_width 
  * @param color_hex #AABBGGRR
  */
-graphic *init_graphic_mode(GoL_vec2 win_sz, Uint32 bg_clr_hex, const char* win_title, GoL_vec2 grid_size, Uint32 cell_clr){
+graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color bg_clr_hex, const char* win_title, GoL_vec2 grid_size, GoL_color cell_clr){
     if(SDL_Init(SDL_INIT_VIDEO) < 0){
         fprintf(stderr, "Could not initialize SDL : %s", SDL_GetError());
         return NULL;
@@ -106,8 +106,15 @@ void GoL_handle_events(game_graphic *game){
             case SDLK_ESCAPE:
                 game->game_params.state = QUIT;
                 break;
-            }
+
+            // Freezes the program : try to make it so that it does it only once every click
+            // case SDLK_c:
+            //     for(uint8_t i = 0; i < game->game_grid.size*game->game_grid.size; ++i){
+            //         kill_cell(get_cell(&game->game_grid, i/game->game_grid.size, i%game->game_grid.size));
+            //     }
+            // }
             break;
+            }
 
         case SDL_MOUSEBUTTONDOWN:  
             //Faire gaffe quand la taille de la grid est grande le calcul sort une valeur hors de la grille
@@ -118,7 +125,7 @@ void GoL_handle_events(game_graphic *game){
                 x /= game->game_graphics->cell_graph.cell_width;
                 y /= game->game_graphics->cell_graph.cell_height;
                 cell *temp_cell = get_cell(&game->game_grid, x, y);
-                change_cell_state(temp_cell);
+                if (temp_cell != NULL) change_cell_state(temp_cell);
             }
             break;
         
@@ -128,3 +135,22 @@ void GoL_handle_events(game_graphic *game){
         }
     }
 }
+
+#endif
+#ifdef CONSOLE
+
+int init_ncurses(GoL_text_colors color){
+    initscr();
+    cbreak();
+    noecho();
+    start_color();
+    use_default_colors();
+
+    switch(color){
+        case TEXT_RED:
+            init_pair(1, COLOR_RED, -1);
+
+        case TEXT_
+    }
+}
+#endif

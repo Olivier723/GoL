@@ -1,4 +1,5 @@
 bin/
 GoL
-GoL-SDL
+GoL.sdl
 .gitignore
+GoL.term

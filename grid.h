@@ -13,9 +13,9 @@ typedef enum {DEAD, ALIVE} cell_state;
 
 typedef struct cell_t{
     //Current state
-    bool state;
+    cell_state state;
     //State for the next game tick
-    bool next_state;
+    cell_state next_state;
     //every possible neighbors of a cell, a neighbor can be NULL if a cell doesn't have 8 neighbors
     struct cell_t *neighbors[8];
 }cell;
@@ -28,7 +28,7 @@ typedef struct {
 typedef enum {QUIT, PAUSED, RUNNING} game_state;
 
 typedef struct{
-    uint8_t state;
+    game_state state;
     double fps_limit;
     double tickrate;
 }game_config;

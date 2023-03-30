@@ -3,6 +3,7 @@
 
 #include "grid.h"
 
+#ifdef GRAPHIC
 #include <SDL2/SDL.h>
 
 #define R 0
@@ -12,7 +13,7 @@
 #define GET_VALUE(color, value) (((color) >> (value * 8)) & 0xff)
 
 //Extracts an SDL_Color object from a Hex color
-#define RGBA_FROM_HEX(color) {\
+#define RGBA_FROM_HEX(color) {       \
             .a = GET_VALUE(color, A),\
             .b = GET_VALUE(color, B),\
             .g = GET_VALUE(color, G),\
@@ -31,7 +32,7 @@ typedef enum hex_colors_t{
     COLOR_CYAN = 0xFFFFFF00,
     COLOR_YELLOW = 0xFF00FFFF,
     COLOR_WHITE = 0xFFFFFFFF,
-}hex_colors;
+}GoL_color;
 
 typedef struct {
     Uint32 x;
@@ -60,11 +61,27 @@ typedef struct {
 
 void display_grid(game_graphic *game);
 
-graphic *init_graphic_mode(GoL_vec2 win_sz, Uint32 bg_clr_hex, const char* win_title,
+graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color bg_clr_hex, const char* win_title,
                             GoL_vec2 grid_size, Uint32 cell_clr);
 
 void GoL_handle_events(game_graphic *game);
 
 void GoL_clear_window(game_graphic *game);
+#endif
+
+#ifdef CONSOLE
+
+#include <curses.h>
+
+typedef enum {
+    TEXT_WHITE,
+    TEXT_GREEN,
+    TEXT_RED,
+    TEXT_GREEN,
+}GoL_text_colors;
+
+int init_ncurses(GoL_text_colors color);
+
+#endif
 
 #endif

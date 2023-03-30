@@ -61,8 +61,6 @@ grid init_grid(uint32_t size){
         new_grid.cell_grid[i] = new_cell;
     }
 
-    // cell *current_cell = get_cell(&new_grid, 9, 9);
-    // set_neighbors(&new_grid, 9, 9, current_cell);
     // Set each cell's neighbors
     for(uint32_t i = 0; i < size * size; ++i){
         cell *current_cell = get_cell(&new_grid, i/size, i%size);
@@ -71,6 +69,7 @@ grid init_grid(uint32_t size){
     return new_grid;
 }
 
+//Useless
 void print_grid(grid *grid){
     gotoxy(0,0);
     for(uint32_t i = 0; i < grid->size; ++i){
