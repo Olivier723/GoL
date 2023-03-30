@@ -1,9 +1,9 @@
 #include <stdio.h>
 // #define CONSOLE
-#define GRAPHIC
+// #define GRAPHIC
 
 #if (defined CONSOLE && defined GRAPHIC)
-#error "Cannot do graphic and console at the same time"
+#error "Cannot do graphic and console at the same time"-
 #endif
 
 #ifdef GRAPHIC
@@ -17,6 +17,13 @@
 #endif
 
 #define GRIDSIZE 40
+
+#ifdef CONSOLE
+
+#include <time.h>
+#include "display-GoL.h"
+#define FPS_LIMIT 10
+#endif
 
 //Ticks per second
 #define TICKRATE 5
@@ -62,6 +69,35 @@ int main(){
     SDL_DestroyRenderer(game.game_graphics->renderer);
     SDL_DestroyWindow(game.game_graphics->window);
     SDL_Quit();
+#endif
+#ifdef CONSOLE
+    /*
+    * You'd have to give a configuration before starting the game
+    * Or maybe using ncurses to make an interactive game 
+    */
+
+    
+    
+
+    for(int i = 0; i < GRIDSIZE; ++i){
+        attron(COLOR_PAIR(1));
+        mvprintw(i, 4, "#");
+        attroff(COLOR_PAIR(1));
+        if(i > 0) mvprintw(i-1, 4, " ");
+        refresh();
+        getch();
+    }
+    
+    
+    endwin();
+    // uint64_t ms, ms_frames = 0, ms_ticks = 0, delta_frames, delta_ticks;
+    // struct timespec spec;
+    // ms = clock();
+    // while (game_config.state != QUIT)
+    // {
+        
+    // }
+
+#endif
     return 0;
 }
-#endif
