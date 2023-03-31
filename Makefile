@@ -7,7 +7,7 @@ main-SDL.o: main.c
 	cc -o bin/main-SDL.o -c main.c $(FLAGS) $$(sdl2-config --cflags) -DGRAPHIC 
 
 grid.o: grid.c
-	cc -o bin/grid-SDL.o -c grid.c $(FLAGS)
+	cc -o bin/grid.o -c grid.c $(FLAGS)
 
 display-GoL-SDL.o: display-GoL.c
 	cc -o bin/display-GoL.o -c display-GoL.c $(FLAGS) $$(sdl2-config --cflags) -DGRAPHIC

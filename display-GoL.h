@@ -35,13 +35,13 @@ typedef enum hex_colors_t{
 }GoL_color;
 
 typedef struct {
-    Uint32 x;
-    Uint32 y;
+    uint32_t x;
+    uint32_t y;
 }GoL_vec2;
 
 typedef struct {
-    Uint16 cell_height;
-    Uint16 cell_width;
+    uint16_t cell_height;
+    uint16_t cell_width;
     SDL_Color cell_color;
 }cell_graphic;
 
@@ -62,7 +62,7 @@ typedef struct {
 void display_grid(game_graphic *game);
 
 graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color bg_clr_hex, const char* win_title,
-                            GoL_vec2 grid_size, Uint32 cell_clr);
+                           GoL_vec2 grid_size, uint32_t cell_clr);
 
 void GoL_handle_events(game_graphic *game);
 
@@ -72,16 +72,14 @@ void GoL_clear_window(game_graphic *game);
 #ifdef CONSOLE
 
 #include <curses.h>
-
 typedef enum {
     TEXT_WHITE,
-    TEXT_GREEN,
     TEXT_RED,
     TEXT_GREEN,
 }GoL_text_colors;
 
-int init_ncurses(GoL_text_colors color);
+void init_ncurses(GoL_text_colors color);
 
 #endif
 
-#endif
+#endif  //DISPLAY_GOL_H

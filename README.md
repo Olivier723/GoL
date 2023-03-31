@@ -1,6 +1,6 @@
 # Conway's Game of Life in C
 
-An implementation of Conway's game of life in C using SDL (WIP).  
+An implementation of Conway's game of life in C using SDL or ncurses (WIP).  
 
 What it looks like for now :  
 ![A Penta-decathlon oscillator](GoL.png)

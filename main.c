@@ -1,13 +1,12 @@
-#include <stdio.h>
-// #define CONSOLE
+#define CONSOLE
 // #define GRAPHIC
 
 #if (defined CONSOLE && defined GRAPHIC)
-#error "Cannot do graphic and console at the same time"-
+#error "Cannot do graphic and console at the same time"
 #endif
 
-#ifdef GRAPHIC
 #include "display-GoL.h"
+#ifdef GRAPHIC
 #define FPS_LIMIT 60
 #define WIN_WIDTH 640
 #define WIN_HEIGTH 480
@@ -21,7 +20,6 @@
 #ifdef CONSOLE
 
 #include <time.h>
-#include "display-GoL.h"
 #define FPS_LIMIT 10
 #endif
 
@@ -77,16 +75,16 @@ int main(){
     */
 
     
-    
+    init_ncurses(TEXT_WHITE);
 
-    for(int i = 0; i < GRIDSIZE; ++i){
-        attron(COLOR_PAIR(1));
-        mvprintw(i, 4, "#");
-        attroff(COLOR_PAIR(1));
-        if(i > 0) mvprintw(i-1, 4, " ");
-        refresh();
-        getch();
+    change_cell_state(get_cell(&game_grid, 5, 5));
+    for(uint32_t i = 0; i < game_grid.size; ++i){
+        for(uint32_t j = 0; j < game_grid.size; ++j){
+            cell *temp = get_cell(&game_grid, i, j);
+            if(temp->state == ALIVE) mvprintw(i,j,"#");
+        }
     }
+    getch();
     
     
     endwin();

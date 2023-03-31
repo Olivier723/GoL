@@ -139,7 +139,7 @@ void GoL_handle_events(game_graphic *game){
 #endif
 #ifdef CONSOLE
 
-int init_ncurses(GoL_text_colors color){
+void init_ncurses(GoL_text_colors color){
     initscr();
     cbreak();
     noecho();
@@ -149,8 +149,15 @@ int init_ncurses(GoL_text_colors color){
     switch(color){
         case TEXT_RED:
             init_pair(1, COLOR_RED, -1);
+            break;
 
-        case TEXT_
+        case TEXT_GREEN:
+            init_pair(1, COLOR_GREEN, -1);
+            break;
+
+        case TEXT_WHITE:
+            init_pair(1,COLOR_WHITE, -1);
+            break;
     }
 }
 #endif
