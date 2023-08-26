@@ -1,4 +1,5 @@
 bin/
+.vscode/
 GoL
 GoL.sdl
 .gitignore

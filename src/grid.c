@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 
-#include "grid.h"
+#include "../include/grid.h"
 
 uint16_t get_neighbors_number(uint32_t x, uint32_t y, uint32_t size){
     uint16_t neighbors_count = 8;

@@ -1,4 +1,4 @@
-#include "display-GoL.h"
+#include "../include/display-GoL.h"
 #ifdef GRAPHIC
 
 

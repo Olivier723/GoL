@@ -6,32 +6,32 @@
 #ifdef GRAPHIC
 #include <SDL2/SDL.h>
 
-#define R 0
-#define G 1
-#define B 2
-#define A 3
+#define RED 0
+#define GREEN 1
+#define BLUE 2
+#define ALPHA 3
+#define BYTE_SIZE sizeof(unsigned char)
 #define GET_VALUE(color, value) (((color) >> (value * 8)) & 0xff)
-
 //Extracts an SDL_Color object from a Hex color
 #define RGBA_FROM_HEX(color) {       \
-            .a = GET_VALUE(color, A),\
-            .b = GET_VALUE(color, B),\
-            .g = GET_VALUE(color, G),\
-            .r = GET_VALUE(color, R),\
+            .a = GET_VALUE(color, ALPHA),\
+            .b = GET_VALUE(color, BLUE),\
+            .g = GET_VALUE(color, GREEN),\
+            .r = GET_VALUE(color, RED),\
         }
 
 #define VEC(_x, _y) {.x = _x, .y = _y}
 
 // 0xAABBGGRR
 typedef enum hex_colors_t{
-    COLOR_BLACK = 0xFF000000,
-    COLOR_RED = 0xFF0000FF,
-    COLOR_BLUE = 0xFFFF0000,
-    COLOR_GREEN = 0xFF00FF00,
+    COLOR_BLACK   = 0xFF000000,
+    COLOR_RED     = 0xFF0000FF,
+    COLOR_BLUE    = 0xFFFF0000,
+    COLOR_GREEN   = 0xFF00FF00,
     COLOR_MAGENTA = 0xFF00FFFF,
-    COLOR_CYAN = 0xFFFFFF00,
-    COLOR_YELLOW = 0xFF00FFFF,
-    COLOR_WHITE = 0xFFFFFFFF,
+    COLOR_CYAN    = 0xFFFFFF00,
+    COLOR_YELLOW  = 0xFF00FFFF,
+    COLOR_WHITE   = 0xFFFFFFFF,
 }GoL_color;
 
 typedef struct {
@@ -68,7 +68,6 @@ void GoL_handle_events(game_graphic *game);
 
 void GoL_clear_window(game_graphic *game);
 #endif
-
 #ifdef CONSOLE
 
 #include <curses.h>

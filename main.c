@@ -1,11 +1,11 @@
-#define CONSOLE
+// #define CONSOLE
 // #define GRAPHIC
 
 #if (defined CONSOLE && defined GRAPHIC)
 #error "Cannot do graphic and console at the same time"
 #endif
 
-#include "display-GoL.h"
+#include "include/display-GoL.h"
 #ifdef GRAPHIC
 #define FPS_LIMIT 60
 #define WIN_WIDTH 640
@@ -18,7 +18,6 @@
 #define GRIDSIZE 40
 
 #ifdef CONSOLE
-
 #include <time.h>
 #define FPS_LIMIT 10
 #endif
@@ -27,7 +26,6 @@
 #define TICKRATE 5
 
 int main(){
-    clear();
     grid game_grid = init_grid(GRIDSIZE);
     game_config game_config = create_game_object(FPS_LIMIT, TICKRATE);
 
