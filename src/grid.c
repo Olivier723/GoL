@@ -86,7 +86,10 @@ void update_grid(grid *grid){
         current_cell->next_state = current_cell->state;
         //Count the alive neighbors
         uint8_t alive_neighbors = 0;
-        for(uint8_t j = 0; j < 8; ++j) if(current_cell->neighbors[j] != NULL) if(current_cell->neighbors[j]->state == ALIVE) ++alive_neighbors;
+        for(uint8_t j = 0; j < 8; ++j)
+            if(current_cell->neighbors[j] != NULL)
+                if(current_cell->neighbors[j]->state == ALIVE)
+                    ++alive_neighbors;
 
         //Determine the state of the cells for the next tick
         if(current_cell->state == DEAD){

@@ -1,4 +1,4 @@
-FLAGS=-W -Wall -Wextra -O3
+FLAGS=-W -Wall -Wextra -O3 -Wpedantic
 INCLUDE=include
 SOURCE=src
 

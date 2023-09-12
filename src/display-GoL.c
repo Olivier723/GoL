@@ -114,6 +114,9 @@ void GoL_handle_events(game_graphic *game){
             //     }
             // }
             break;
+            default:
+                //TODO
+                break;
             }
 
         case SDL_MOUSEBUTTONDOWN:  
@@ -134,6 +137,13 @@ void GoL_handle_events(game_graphic *game){
             break;
         }
     }
+}
+
+void GoL_destroy(game_graphic *game){
+    free(game->game_grid.cell_grid);
+    SDL_DestroyRenderer(game->game_graphics->renderer);
+    SDL_DestroyWindow(game->game_graphics->window);
+    SDL_Quit();
 }
 
 #endif

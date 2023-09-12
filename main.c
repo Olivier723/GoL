@@ -1,5 +1,5 @@
 // #define CONSOLE
-// #define GRAPHIC
+#define GRAPHIC
 
 #if (defined CONSOLE && defined GRAPHIC)
 #error "Cannot do graphic and console at the same time"
@@ -34,6 +34,11 @@ int main(){
     GoL_vec2 grid_size = VEC(GRIDSIZE, GRIDSIZE);
     graphic *graphic_mode = init_graphic_mode(window_size, COLOR_BLACK, NAME, grid_size, COLOR_WHITE);
 
+    if(graphic_mode == NULL){
+        fprintf(stderr, "Could not create the graphic context for the window");
+        return 1;
+    }
+
     game_graphic game = {
         .game_graphics = graphic_mode,
         .game_params = game_config,
@@ -61,10 +66,8 @@ int main(){
             ms_ticks = ms;
         }
     }
-    free(game.game_grid.cell_grid);
-    SDL_DestroyRenderer(game.game_graphics->renderer);
-    SDL_DestroyWindow(game.game_graphics->window);
-    SDL_Quit();
+
+    GoL_destroy(&game);
 #endif
 #ifdef CONSOLE
     /*
