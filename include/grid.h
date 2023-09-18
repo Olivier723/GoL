@@ -3,9 +3,6 @@
 
 #include <stdint.h>
 
-// #define clear() printf("\033[H\033[J")
-// #define gotoxy(x,y) printf("\033[%d;%dH", (y), (x))
-
 //State of a cell
 typedef enum {DEAD, ALIVE} cell_state;
 
@@ -61,18 +58,23 @@ cell *get_cell(grid *grid, uint32_t x, uint32_t y);
 
 /**
  * @brief Inverts the state of the given cell
- * Ex: if the cell
  * 
  */
 void change_cell_state(cell *c);
 
 void kill_cell(cell *c);
 
-void revive_cell(cell *);
+void revive_cell(cell *c);
 
+/**
+ * @brief Set the neighbors of the the cell in it's neighbors array, if there is no neighbors NULL is used
+ * 
+ * @param grid the grid of cells
+ * @param x 
+ * @param y 
+ * @param cell the cell that will get it's neighbors set
+ */
 void set_neighbors(grid *grid, uint32_t x, uint32_t y, cell *cell);
 
-//Automatically sets the frame_limit and tickrate in milliseconds
-game_config create_game_object(uint16_t frame_limit, uint16_t tickrate);
 
 #endif

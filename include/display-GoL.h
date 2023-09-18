@@ -3,8 +3,6 @@
 
 #include "grid.h"
 #include <stdbool.h>
-
-// #ifdef GRAPHIC
 #include <SDL2/SDL.h>
 
 #define RED_INDEX 0
@@ -23,17 +21,20 @@
 
 #define VEC(_x, _y) {.x = _x, .y = _y}
 
-// 0xAABBGGRR
+
 typedef enum {
-    COLOR_BLACK   = 0xFF000000u,
-    COLOR_RED     = 0xFF0000FFu,
-    COLOR_BLUE    = 0xFFFF0000u,
-    COLOR_GREEN   = 0xFF00FF00u,
-    COLOR_MAGENTA = 0xFF00FFFFu,
-    COLOR_CYAN    = 0xFFFFFF00u,
-    COLOR_YELLOW  = 0xFF00FFFFu,
-    COLOR_WHITE   = 0xFFFFFFFFu,
-}GoL_color;
+    COLOR_BLACK,
+    COLOR_RED,
+    COLOR_BLUE,
+    COLOR_GREEN,
+    COLOR_MAGENTA,
+    COLOR_CYAN,
+    COLOR_YELLOW,
+    COLOR_WHITE,
+}GoL_color_code;
+
+typedef uint32_t GoL_color;
+
 
 typedef struct {
     uint32_t x;
@@ -78,10 +79,10 @@ void display_grid(game_graphic *game);
  * @return graphic* 
  */
 graphic *init_graphic_mode(GoL_vec2 win_sz,
-                           GoL_color bg_clr_hex,
+                           GoL_color_code bg_clr,
                            const char* win_title,
                            GoL_vec2 grid_size,
-                           uint32_t cell_clr);
+                           GoL_color_code cell_clr);
 
 /**
  * @brief Handles the events such as user input
@@ -93,23 +94,17 @@ void GoL_handle_events(game_graphic *game);
 void GoL_clear_window(game_graphic *game);
 
 /**
+ * @brief Create a game config object
+ * 
+ * @param frame_limit in frames per second
+ * @param tickrate in ticks per second
+ */
+game_config create_game_config(uint16_t frame_limit, uint16_t tickrate);
+
+/**
  * @brief Cleans up any memory allocation used by this program
  * 
  * @param game 
  */
 void GoL_destroy(game_graphic *game);
-// #endif
-#ifdef CONSOLE
-
-#include <curses.h>
-typedef enum {
-    TEXT_WHITE,
-    TEXT_RED,
-    TEXT_GREEN,
-}GoL_text_colors;
-
-void init_ncurses(GoL_text_colors color);
-
-#endif
-
 #endif  //DISPLAY_GOL_H
