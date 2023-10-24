@@ -59,7 +59,23 @@ typedef struct {
     game_config game_params;
     grid game_grid;
     SDL_Event event;
+    uint8_t key_states;
+    uint8_t previous_key_states;
 }game_graphic;
+
+typedef enum {
+    NOT_PRESSED = 0x00u,
+    PRESSED     = 0x01u,
+}key_state;
+
+typedef enum {
+    ESCAPE = 0x01u,
+    PAUSE  = 0x02u,
+    CLEAR  = 0x04u,
+}GoL_action_keys;
+
+bool is_key_active(game_graphic *game, GoL_action_keys key);
+bool was_key_active(game_graphic *game, GoL_action_keys key);
 
 /**
  * @brief Takes the grid of cells and converts it into visual information on the SDL window associated
@@ -99,7 +115,7 @@ void GoL_clear_window(game_graphic *game);
  * @param frame_limit in frames per second
  * @param tickrate in ticks per second
  */
-game_config create_game_config(uint16_t frame_limit, uint16_t tickrate);
+game_config create_game_config(uint16_t frame_limit);
 
 /**
  * @brief Cleans up any memory allocation used by this program

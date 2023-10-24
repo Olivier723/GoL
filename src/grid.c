@@ -93,7 +93,3 @@ void update_grid(grid *grid){
         (current_cell->next_state == DEAD) ? kill_cell(current_cell) : revive_cell(current_cell);
     }
 }
-
-void change_tickrate(game_config *game, uint16_t new_tickrate){
-    game->tickrate = 1000/new_tickrate;
-}

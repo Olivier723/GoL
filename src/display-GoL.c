@@ -12,6 +12,32 @@ static GoL_color GoL_color_defs[] = {
     [COLOR_WHITE]   = 0xFFFFFFFFu,
 };
 
+inline void clear_key_state(game_graphic *game, GoL_action_keys key){
+    if(is_key_active(game, key)){
+        game->key_states ^= key;
+    }
+}
+
+inline void activate_key(game_graphic *game, GoL_action_keys key){
+    game->key_states |= key;
+}
+
+bool is_key_active(game_graphic *game, GoL_action_keys key){
+    return game->key_states & key;
+}
+
+bool was_key_active(game_graphic *game, GoL_action_keys key) {
+    return game->previous_key_states & key;
+}
+
+inline void clear_current_keys(game_graphic *game){
+    game->key_states = 0x00;
+}
+
+inline void copy_keys_current_old(game_graphic *game) {
+    game->previous_key_states = game->key_states;
+}
+
 /**
  * @brief Creates an SDL wrapper for the game in graphic mode
  * 
@@ -102,11 +128,10 @@ void GoL_clear_window(game_graphic *game){
     SDL_RenderClear(g->renderer);
 }
 
-game_config create_game_config(uint16_t frame_limit, uint16_t tickrate){
+game_config create_game_config(uint16_t frame_limit){
     game_config new_game = {
         .state = PAUSED,
         .fps_limit = 1000/frame_limit,
-        .tickrate = 1000/tickrate,
     };
     return new_game;
 }
@@ -120,7 +145,7 @@ void GoL_handle_events(game_graphic *game){
             game->game_params.state = QUIT;
             break;
 
-        case SDL_KEYDOWN:
+        case SDL_KEYUP:
             switch (e->key.keysym.sym){
             case SDLK_SPACE:
                 if(game->game_params.state == PAUSED){
@@ -135,19 +160,14 @@ void GoL_handle_events(game_graphic *game){
                 game->game_params.state = QUIT;
                 break;
 
-            // Freezes the program : try to make it so that it does it only once every click
-            // case SDLK_c:
-            //     if(c_key_down){
-            //         break;
-            //     }
-            //     c_key_down = true;
-            //     for(uint8_t i = 0; i < game->game_grid.size*game->game_grid.size; ++i){
-            //         kill_cell(get_cell(&game->game_grid, i/game->game_grid.size, i%game->game_grid.size));
-            //     }
-            //     break;
+            case SDLK_c:
+                for(size_t i = 0; i < game->game_grid.size*game->game_grid.size; ++i){
+                    kill_cell(get_cell(&game->game_grid, i/game->game_grid.size, i%game->game_grid.size));
+                }
+                break;
             
             default:
-                //TODO
+                //If this reaches, it means that no key used by this program was pressed
                 break;
             }
             break;
@@ -173,6 +193,12 @@ void GoL_handle_events(game_graphic *game){
             break;
         }
     }
+
+    
+    SDL_Log("Current key states : %#04x, previous : %#04x\n", game->key_states, game->previous_key_states);
+
+    copy_keys_current_old(game);
+    clear_current_keys(game);
 }
 
 void GoL_destroy(game_graphic *game){

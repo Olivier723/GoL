@@ -11,8 +11,6 @@
 #define TICKRATE 5
 
 int main(){
-    grid game_grid = init_grid(GRIDSIZE);
-    game_config game_config = create_game_config(FPS_LIMIT, TICKRATE);
     GoL_vec2 window_size = VEC(WIN_WIDTH, WIN_HEIGTH);
     GoL_vec2 grid_size = VEC(GRIDSIZE, GRIDSIZE);
     graphic *graphic_mode = init_graphic_mode(window_size, COLOR_BLACK, NAME, grid_size, COLOR_WHITE);
@@ -24,29 +22,29 @@ int main(){
 
     game_graphic game = {
         .game_graphics = graphic_mode,
-        .game_params = game_config,
-        .game_grid = game_grid,
+        .game_params = create_game_config(FPS_LIMIT),
+        .game_grid = init_grid(GRIDSIZE),
+        .key_states = 0x00u,
+        .previous_key_states = 0x00u,
     };
     
-    uint64_t ms, ms_frames = 0, ms_ticks = 0, delta_frames, delta_ticks;
+    uint64_t ms, ms_frames = 0, delta_frames, frame_count = 0;
     while (game.game_params.state != QUIT){
         ms = SDL_GetTicks64();
         delta_frames = ms - ms_frames;
-        delta_ticks = ms - ms_ticks;
 
-        if(delta_frames > game_config.fps_limit){
+        if(delta_frames > game.game_params.fps_limit){
+            SDL_Log("Tick\n");
             GoL_handle_events(&game);
             GoL_clear_window(&game);
             display_grid(&game);
             ms_frames = ms;
+            ++frame_count;
         }
 
 
-        if(delta_ticks > game_config.tickrate){
-            if(game.game_params.state == RUNNING) {
-                update_grid(&game.game_grid);
-            }
-            ms_ticks = ms;
+        if(((frame_count % TICKRATE )== 0) && (game.game_params.state == RUNNING)){
+            update_grid(&game.game_grid);
         }
     }
 
