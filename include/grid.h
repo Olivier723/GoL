@@ -26,6 +26,7 @@ typedef enum {QUIT, PAUSED, RUNNING} game_state;
 typedef struct{
     game_state state;
     double fps_limit;
+    double tickrate;
 }game_config;
 
 /**

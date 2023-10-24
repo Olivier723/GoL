@@ -59,8 +59,6 @@ typedef struct {
     game_config game_params;
     grid game_grid;
     SDL_Event event;
-    uint8_t key_states;
-    uint8_t previous_key_states;
 }game_graphic;
 
 typedef enum {
@@ -115,7 +113,7 @@ void GoL_clear_window(game_graphic *game);
  * @param frame_limit in frames per second
  * @param tickrate in ticks per second
  */
-game_config create_game_config(uint16_t frame_limit);
+game_config create_game_config(uint16_t frame_limit, uint16_t tickrate);
 
 /**
  * @brief Cleans up any memory allocation used by this program

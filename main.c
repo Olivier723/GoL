@@ -22,30 +22,30 @@ int main(){
 
     game_graphic game = {
         .game_graphics = graphic_mode,
-        .game_params = create_game_config(FPS_LIMIT),
+        .game_params = create_game_config(FPS_LIMIT, TICKRATE),
         .game_grid = init_grid(GRIDSIZE),
-        .key_states = 0x00u,
-        .previous_key_states = 0x00u,
     };
     
-    uint64_t ms, ms_frames = 0, delta_frames, frame_count = 0;
+    uint64_t ms, ms_frames = 0, ms_ticks = 0, delta_ticks, delta_frames;
     while (game.game_params.state != QUIT){
         ms = SDL_GetTicks64();
         delta_frames = ms - ms_frames;
+        delta_ticks = ms - ms_ticks;
 
         if(delta_frames > game.game_params.fps_limit){
-            SDL_Log("Tick\n");
             GoL_handle_events(&game);
             GoL_clear_window(&game);
             display_grid(&game);
             ms_frames = ms;
-            ++frame_count;
         }
 
-
-        if(((frame_count % TICKRATE )== 0) && (game.game_params.state == RUNNING)){
-            update_grid(&game.game_grid);
+        if(delta_ticks > game.game_params.tickrate){
+            if(game.game_params.state == RUNNING) {
+                update_grid(&game.game_grid);
+            }
+            ms_ticks = ms;
         }
+        
     }
 
     GoL_destroy(&game);
