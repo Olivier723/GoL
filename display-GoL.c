@@ -1,4 +1,5 @@
 #include "display-GoL.h"
+#define CONSOLE
 #ifdef GRAPHIC
 
 
