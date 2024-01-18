@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
-#include "grid.h"
+#include "../include/grid.h"
 
 uint16_t get_neighbors_number(uint32_t x, uint32_t y, uint32_t size){
     uint16_t neighbors_count = 8;
@@ -69,24 +68,16 @@ grid init_grid(uint32_t size){
     return new_grid;
 }
 
-//Useless
-void print_grid(grid *grid){
-    gotoxy(0,0);
-    for(uint32_t i = 0; i < grid->size; ++i){
-        for(uint32_t j = 0; j < grid->size; ++j){
-            printf("%d ", grid->cell_grid[i * grid->size + j].state);
-        }
-        printf("\n");
-    }
-}
-
 void update_grid(grid *grid){
     for(uint32_t i = 0; i < grid->size * grid->size; ++i){
         cell *current_cell = get_cell(grid, i/grid->size, i%grid->size);
         current_cell->next_state = current_cell->state;
         //Count the alive neighbors
         uint8_t alive_neighbors = 0;
-        for(uint8_t j = 0; j < 8; ++j) if(current_cell->neighbors[j] != NULL) if(current_cell->neighbors[j]->state == ALIVE) ++alive_neighbors;
+        for(uint8_t j = 0; j < 8; ++j)
+            if(current_cell->neighbors[j] != NULL)
+                if(current_cell->neighbors[j]->state == ALIVE)
+                    ++alive_neighbors;
 
         //Determine the state of the cells for the next tick
         if(current_cell->state == DEAD){
@@ -101,20 +92,4 @@ void update_grid(grid *grid){
         cell *current_cell = get_cell(grid, k/grid->size, k%grid->size);
         (current_cell->next_state == DEAD) ? kill_cell(current_cell) : revive_cell(current_cell);
     }
-}
-
-
-
-
-game_config create_game_object(uint16_t frame_limit, uint16_t tickrate){
-    game_config new_game = {
-        .state = PAUSED,
-        .fps_limit = 1000/frame_limit,
-        .tickrate = 1000/tickrate,
-    };
-    return new_game;
-}
-
-void change_tickrate(game_config *game, uint16_t new_tickrate){
-    game->tickrate = 1000/new_tickrate;
 }

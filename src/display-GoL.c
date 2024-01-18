@@ -1,7 +1,16 @@
-#include "display-GoL.h"
-#define CONSOLE
-#ifdef GRAPHIC
+#include "../include/display-GoL.h"
 
+// 0xAABBGGRR
+static GoL_color GoL_color_defs[] = {
+    [COLOR_BLACK]   = 0xFF000000u,
+    [COLOR_RED]     = 0xFF0000FFu,
+    [COLOR_BLUE]    = 0xFFFF0000u,
+    [COLOR_GREEN]   = 0xFF00FF00u,
+    [COLOR_MAGENTA] = 0xFF00FFFFu,
+    [COLOR_CYAN]    = 0xFFFFFF00u,
+    [COLOR_YELLOW]  = 0xFF00FFFFu,
+    [COLOR_WHITE]   = 0xFFFFFFFFu,
+};
 
 /**
  * @brief Creates an SDL wrapper for the game in graphic mode
@@ -10,7 +19,8 @@
  * @param cell_width 
  * @param color_hex #AABBGGRR
  */
-graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color bg_clr_hex, const char* win_title, GoL_vec2 grid_size, GoL_color cell_clr){
+graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color_code bg_clr, const char* win_title,
+                           GoL_vec2 grid_size, GoL_color_code cell_clr){
     if(SDL_Init(SDL_INIT_VIDEO) < 0){
         fprintf(stderr, "Could not initialize SDL : %s", SDL_GetError());
         return NULL;
@@ -18,7 +28,7 @@ graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color bg_clr_hex, const char* wi
     
     SDL_Window *window = SDL_CreateWindow(win_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, win_sz.x, win_sz.y, SDL_WINDOW_RESIZABLE);
     if(window == NULL){
-        SDL_Log("Could not create window : %s", SDL_GetError());
+        SDL_Log("[ERROR] Could not create window : %s", SDL_GetError());
         SDL_Quit();
         return NULL;
     }
@@ -26,14 +36,17 @@ graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color bg_clr_hex, const char* wi
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
     if(renderer == NULL){
         SDL_DestroyWindow(window);
-        SDL_Log("Could not create a renderer for the window : %s", SDL_GetError());
+        SDL_Log("[ERROR] Could not create a renderer for the window : %s", SDL_GetError());
         SDL_Quit();
         return NULL;
     }
 
     graphic *new_graphic = malloc(sizeof(graphic));
     if(new_graphic == NULL) {
-        fprintf(stderr, "[ERROR] There was a error while intializing the game\n");
+        SDL_Log("[ERROR] Buy more RAM\n");
+        SDL_DestroyRenderer(new_graphic->renderer);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
         return NULL;
     }
 
@@ -42,16 +55,16 @@ graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color bg_clr_hex, const char* wi
     cell_graphic new_cell_graphic = {
         .cell_height = win_sz.y/grid_size.y,
         .cell_width = win_sz.x/grid_size.x,
-        .cell_color = RGBA_FROM_HEX(cell_clr),
+        .cell_color = RGBA_FROM_HEX(GoL_color_defs[cell_clr]),
     };
-    SDL_Color bg_color = RGBA_FROM_HEX(bg_clr_hex);
+    SDL_Color bg_color = RGBA_FROM_HEX(GoL_color_defs[bg_clr]);
     new_graphic->background_color = bg_color;
     new_graphic->cell_graph = new_cell_graphic;
 
     SDL_DisplayMode dm;
 
     if (SDL_GetDesktopDisplayMode(0, &dm) != 0){
-        SDL_Log("SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
+        SDL_Log("[ERROR] SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
         SDL_DestroyRenderer(new_graphic->renderer);
         SDL_DestroyWindow(new_graphic->window);
         SDL_Quit();
@@ -82,11 +95,20 @@ void display_grid(game_graphic *game){
 void GoL_clear_window(game_graphic *game){
     graphic *g = game->game_graphics;
     SDL_SetRenderDrawColor(g->renderer,
-                            g->background_color.r,
-                            g->background_color.g,
-                            g->background_color.b,
-                            g->background_color.a);
+                           g->background_color.r,
+                           g->background_color.g,
+                           g->background_color.b,
+                           g->background_color.a);
     SDL_RenderClear(g->renderer);
+}
+
+game_config create_game_config(uint16_t frame_limit, uint16_t tickrate){
+    game_config new_game = {
+        .state = PAUSED,
+        .fps_limit = 1000/frame_limit,
+        .tickrate = 1000/tickrate,
+    };
+    return new_game;
 }
 
 void GoL_handle_events(game_graphic *game){
@@ -98,24 +120,32 @@ void GoL_handle_events(game_graphic *game){
             game->game_params.state = QUIT;
             break;
 
-        case SDL_KEYDOWN:
+        case SDL_KEYUP:
             switch (e->key.keysym.sym){
             case SDLK_SPACE:
-                game->game_params.state = (game->game_params.state == PAUSED) ? RUNNING : PAUSED;
+                if(game->game_params.state == PAUSED){
+                    game->game_params.state = RUNNING;
+                }
+                else if(game->game_params.state == RUNNING){
+                    game->game_params.state = PAUSED;
+                }
                 break;
 
             case SDLK_ESCAPE:
                 game->game_params.state = QUIT;
                 break;
 
-            // Freezes the program : try to make it so that it does it only once every click
-            // case SDLK_c:
-            //     for(uint8_t i = 0; i < game->game_grid.size*game->game_grid.size; ++i){
-            //         kill_cell(get_cell(&game->game_grid, i/game->game_grid.size, i%game->game_grid.size));
-            //     }
-            // }
-            break;
+            case SDLK_c:
+                for(size_t i = 0; i < game->game_grid.size*game->game_grid.size; ++i){
+                    kill_cell(get_cell(&game->game_grid, i/game->game_grid.size, i%game->game_grid.size));
+                }
+                break;
+            
+            default:
+                //If this reaches, it means that no key used by this program was pressed
+                break;
             }
+            break;
 
         case SDL_MOUSEBUTTONDOWN:  
             //Faire gaffe quand la taille de la grid est grande le calcul sort une valeur hors de la grille
@@ -133,32 +163,17 @@ void GoL_handle_events(game_graphic *game){
         case SDL_MOUSEBUTTONUP:
             mouse_down = false;
             break;
+
+        default:
+            break;
         }
     }
 }
 
-#endif
-#ifdef CONSOLE
-
-void init_ncurses(GoL_text_colors color){
-    initscr();
-    cbreak();
-    noecho();
-    start_color();
-    use_default_colors();
-
-    switch(color){
-        case TEXT_RED:
-            init_pair(1, COLOR_RED, -1);
-            break;
-
-        case TEXT_GREEN:
-            init_pair(1, COLOR_GREEN, -1);
-            break;
-
-        case TEXT_WHITE:
-            init_pair(1,COLOR_WHITE, -1);
-            break;
-    }
+void GoL_destroy(game_graphic *game){
+    free(game->game_grid.cell_grid);
+    SDL_DestroyRenderer(game->game_graphics->renderer);
+    SDL_DestroyWindow(game->game_graphics->window);
+    free(game->game_graphics);
+    SDL_Quit();
 }
-#endif

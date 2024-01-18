@@ -2,10 +2,6 @@
 #define GRID_H
 
 #include <stdint.h>
-#include <stdbool.h>
-
-// #define clear() printf("\033[H\033[J")
-#define gotoxy(x,y) printf("\033[%d;%dH", (y), (x))
 
 //State of a cell
 typedef enum {DEAD, ALIVE} cell_state;
@@ -33,23 +29,52 @@ typedef struct{
     double tickrate;
 }game_config;
 
+/**
+ * @brief Creates a grid of size x size cells
+ * 
+ * @param size 
+ * @return grid 
+ */
 grid init_grid(uint32_t size);
 
 void print_grid(grid *grid);
 
+/**
+ * @brief Updates the state of the cells using the rules of the game of life
+ * 
+ * @param grid 
+ */
 void update_grid(grid *grid);
 
+/**
+ * @brief Returns a pointer to a cell present at (x,y) or NULL if the given coordinates are out of bounds
+ * 
+ * @param grid 
+ * @param x 
+ * @param y 
+ * @return cell* 
+ */
 cell *get_cell(grid *grid, uint32_t x, uint32_t y);
 
-void change_cell_state(cell *);
+/**
+ * @brief Inverts the state of the given cell
+ * 
+ */
+void change_cell_state(cell *c);
 
-void kill_cell(cell *);
+void kill_cell(cell *c);
 
-void revive_cell(cell *);
+void revive_cell(cell *c);
 
+/**
+ * @brief Set the neighbors of the the cell in it's neighbors array, if there is no neighbors NULL is used
+ * 
+ * @param grid the grid of cells
+ * @param x 
+ * @param y 
+ * @param cell the cell that will get it's neighbors set
+ */
 void set_neighbors(grid *grid, uint32_t x, uint32_t y, cell *cell);
 
-//Automatically sets the frame_limit and tickrate in milliseconds
-game_config create_game_object(uint16_t frame_limit, uint16_t tickrate);
 
 #endif
