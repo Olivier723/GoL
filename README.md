@@ -6,6 +6,11 @@ Might get rid of ncurses as it is annoying
 What it looks like for now :  
 ![A Penta-decathlon oscillator](GoL.png)
 
+## How to use:
+ - Escape to quit
+ - C to clear the grid of any live cell
+ - Space to pause/resume the game
+
 ## Possible ameliorations :
  - Make the neighbors array's size change depending on how many neighbors a cell has
  - Make the grid "infinite"

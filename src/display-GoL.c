@@ -22,7 +22,7 @@ static GoL_color GoL_color_defs[] = {
 graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color_code bg_clr, const char* win_title,
                            GoL_vec2 grid_size, GoL_color_code cell_clr){
     if(SDL_Init(SDL_INIT_VIDEO) < 0){
-        fprintf(stderr, "Could not initialize SDL : %s", SDL_GetError());
+        fprintf(stderr, "[ERROR] Could not initialize SDL : %s", SDL_GetError());
         return NULL;
     }
     
@@ -77,12 +77,12 @@ graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color_code bg_clr, const char* w
 }
 
 void display_grid(game_graphic *game){
-    graphic *g = game->game_graphics;
+    graphic *g = game->graphics;
     cell_graphic cg = g->cell_graph;
     SDL_SetRenderDrawColor(g->renderer, cg.cell_color.r, cg.cell_color.g, cg.cell_color.b, cg.cell_color.a);
-    for (uint32_t i = 0; i < game->game_grid.size; ++i){
-        for (uint32_t j = 0; j < game->game_grid.size; ++j){
-            cell *current_cell = get_cell(&game->game_grid, i, j);
+    for (uint32_t i = 0; i < game->grid.size; ++i){
+        for (uint32_t j = 0; j < game->grid.size; ++j){
+            cell *current_cell = get_cell(&game->grid, i, j);
             if (current_cell->state == ALIVE){
                 SDL_Rect rect = {i * cg.cell_width, j * cg.cell_height, cg.cell_width, cg.cell_height};
                 SDL_RenderFillRect(g->renderer, &rect);
@@ -93,7 +93,7 @@ void display_grid(game_graphic *game){
 }
 
 void GoL_clear_window(game_graphic *game){
-    graphic *g = game->game_graphics;
+    graphic *g = game->graphics;
     SDL_SetRenderDrawColor(g->renderer,
                            g->background_color.r,
                            g->background_color.g,
@@ -105,8 +105,8 @@ void GoL_clear_window(game_graphic *game){
 game_config create_game_config(uint16_t frame_limit, uint16_t tickrate){
     game_config new_game = {
         .state = PAUSED,
-        .fps_limit = 1000/frame_limit,
-        .tickrate = 1000/tickrate,
+        .fps_limit = (double)1000/(double)frame_limit,
+        .tickrate = (double)1000/(double)tickrate,
     };
     return new_game;
 }
@@ -117,27 +117,27 @@ void GoL_handle_events(game_graphic *game){
     while (SDL_PollEvent(e)){
         switch (e->type){
         case SDL_QUIT:
-            game->game_params.state = QUIT;
+            game->config.state = QUIT;
             break;
 
         case SDL_KEYUP:
             switch (e->key.keysym.sym){
             case SDLK_SPACE:
-                if(game->game_params.state == PAUSED){
-                    game->game_params.state = RUNNING;
+                if(game->config.state == PAUSED){
+                    game->config.state = RUNNING;
                 }
-                else if(game->game_params.state == RUNNING){
-                    game->game_params.state = PAUSED;
+                else if(game->config.state == RUNNING){
+                    game->config.state = PAUSED;
                 }
                 break;
 
             case SDLK_ESCAPE:
-                game->game_params.state = QUIT;
+                game->config.state = QUIT;
                 break;
 
             case SDLK_c:
-                for(size_t i = 0; i < game->game_grid.size*game->game_grid.size; ++i){
-                    kill_cell(get_cell(&game->game_grid, i/game->game_grid.size, i%game->game_grid.size));
+                for(size_t i = 0; i < game->grid.size*game->grid.size; ++i){
+                    kill_cell(get_cell(&game->grid, i/game->grid.size, i%game->grid.size));
                 }
                 break;
             
@@ -153,9 +153,9 @@ void GoL_handle_events(game_graphic *game){
                 mouse_down = true;
                 int x = 0, y = 0;
                 SDL_GetMouseState(&x, &y);
-                x /= game->game_graphics->cell_graph.cell_width;
-                y /= game->game_graphics->cell_graph.cell_height;
-                cell *temp_cell = get_cell(&game->game_grid, x, y);
+                x /= game->graphics->cell_graph.cell_width;
+                y /= game->graphics->cell_graph.cell_height;
+                cell *temp_cell = get_cell(&game->grid, x, y);
                 if (temp_cell != NULL) change_cell_state(temp_cell);
             }
             break;
@@ -171,9 +171,20 @@ void GoL_handle_events(game_graphic *game){
 }
 
 void GoL_destroy(game_graphic *game){
-    free(game->game_grid.cell_grid);
-    SDL_DestroyRenderer(game->game_graphics->renderer);
-    SDL_DestroyWindow(game->game_graphics->window);
-    free(game->game_graphics);
+    free(game->grid.cell_grid);
+    SDL_DestroyRenderer(game->graphics->renderer);
+    SDL_DestroyWindow(game->graphics->window);
+    free(game->graphics);
     SDL_Quit();
+}
+
+void GoL_display_ui(game_graphic *game) {
+    if(game->config.state == PAUSED) {
+        SDL_Rect rect = {
+            .w = 32, .h = 32, .x = 10, .y = 10
+        };
+        SDL_SetRenderDrawColor(game->graphics->renderer, 255,0,0, SDL_ALPHA_OPAQUE);
+        SDL_RenderFillRect(game->graphics->renderer, &rect);
+    }
+    SDL_RenderPresent(game->graphics->renderer);
 }
