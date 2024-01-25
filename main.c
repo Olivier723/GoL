@@ -1,11 +1,11 @@
 #include "include/display-GoL.h"
 #define FPS_LIMIT 60
-#define WIN_WIDTH 640
-#define WIN_HEIGTH 480
+#define WIN_WIDTH 1600
+#define WIN_HEIGTH 1000
 #define NAME "Game of Life SDL"
 #define CELL_WIDTH 10
 #define CELL_HEIGHT 10
-#define GRIDSIZE 40
+#define GRIDSIZE 50
 
 //Ticks per second
 #define TICKRATE 5
@@ -21,27 +21,28 @@ int main(){
     }
 
     game_graphic game = {
-        .game_graphics = graphic_mode,
-        .game_params = create_game_config(FPS_LIMIT, TICKRATE),
-        .game_grid = init_grid(GRIDSIZE),
+        .graphics = graphic_mode,
+        .config = create_game_config(FPS_LIMIT, TICKRATE),
+        .grid = init_grid(GRIDSIZE),
     };
     
-    uint64_t ms, ms_frames = 0, ms_ticks = 0, delta_ticks, delta_frames;
-    while (game.game_params.state != QUIT){
+    uint64_t ms, ms_frames = 0ul, ms_ticks = 0ul, delta_ticks, delta_frames;
+    while (game.config.state != QUIT){
         ms = SDL_GetTicks64();
         delta_frames = ms - ms_frames;
         delta_ticks = ms - ms_ticks;
 
-        if(delta_frames > game.game_params.fps_limit){
-            GoL_handle_events(&game);
+        if(delta_frames > game.config.fps_limit){
             GoL_clear_window(&game);
+            GoL_handle_events(&game);
             display_grid(&game);
+            GoL_display_ui(&game);
             ms_frames = ms;
         }
 
-        if(delta_ticks > game.game_params.tickrate){
-            if(game.game_params.state == RUNNING) {
-                update_grid(&game.game_grid);
+        if(delta_ticks > game.config.tickrate){
+            if(game.config.state == RUNNING) {
+                update_grid(&game.grid);
             }
             ms_ticks = ms;
         }

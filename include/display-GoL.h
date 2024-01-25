@@ -55,9 +55,9 @@ typedef struct {
 }graphic;
 
 typedef struct {
-    graphic *game_graphics;
-    game_config game_params;
-    grid game_grid;
+    graphic *graphics;
+    game_config config;
+    grid grid;
     SDL_Event event;
 }game_graphic;
 
@@ -121,4 +121,7 @@ game_config create_game_config(uint16_t frame_limit, uint16_t tickrate);
  * @param game 
  */
 void GoL_destroy(game_graphic *game);
+
+
+void GoL_display_ui(game_graphic *game);
 #endif  //DISPLAY_GOL_H
