@@ -44,7 +44,7 @@ graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color_code bg_clr, const char* w
     graphic *new_graphic = malloc(sizeof(graphic));
     if(new_graphic == NULL) {
         SDL_Log("[ERROR] Buy more RAM\n");
-        SDL_DestroyRenderer(new_graphic->renderer);
+        SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         SDL_Quit();
         return NULL;
@@ -67,6 +67,7 @@ graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color_code bg_clr, const char* w
         SDL_Log("[ERROR] SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
         SDL_DestroyRenderer(new_graphic->renderer);
         SDL_DestroyWindow(new_graphic->window);
+        free(new_graphic);
         SDL_Quit();
         return NULL;
     }
