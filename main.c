@@ -31,14 +31,13 @@ int main(){
         ms = SDL_GetTicks64();
         delta_frames = ms - ms_frames;
         delta_ticks = ms - ms_ticks;
-
         if(delta_frames > game.config.fps_limit){
             GoL_clear_window(&game);
             GoL_handle_events(&game);
             display_grid(&game);
             GoL_display_ui(&game);
-            ms_frames = ms;
         }
+        ms_frames = ms;
 
         if(delta_ticks > game.config.tickrate){
             if(game.config.state == RUNNING) {
