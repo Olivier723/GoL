@@ -26,7 +26,7 @@ int main(){
         .grid = init_grid(GRIDSIZE),
     };
     
-    uint64_t ms, ms_frames = 0ull, ms_ticks = 0ull, delta_ticks, delta_frames;
+    uint64_t ms, ms_frames = 0ul, ms_ticks = 0ul, delta_ticks, delta_frames;
     while (game.config.state != QUIT){
         ms = SDL_GetTicks64();
         delta_frames = ms - ms_frames;
