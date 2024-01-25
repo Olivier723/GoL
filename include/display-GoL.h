@@ -9,8 +9,7 @@
 #define GREEN_INDEX 1
 #define BLUE_INDEX 2
 #define ALPHA_INDEX 3
-#define BYTE_SIZE sizeof(unsigned char)
-#define GET_VALUE(color, value) (((color) >> ((value) * 8)) & (0xff))
+#define GET_VALUE(color, value) (((color) >> ((value) * sizeof(unsigned char))) & (0xFFu))
 //Extracts an SDL_Color object from a Hex color
 #define RGBA_FROM_HEX(color) {           \
             .a = GET_VALUE(color, ALPHA_INDEX),\
@@ -121,4 +120,5 @@ game_config create_game_config(uint16_t frame_limit, uint16_t tickrate);
  * @param game 
  */
 void GoL_destroy(game_graphic *game);
+
 #endif  //DISPLAY_GOL_H
