@@ -90,7 +90,6 @@ void display_grid(game_graphic *game){
             }
         }
     }
-    SDL_RenderPresent(g->renderer);
 }
 
 void GoL_clear_window(game_graphic *game){
@@ -180,13 +179,11 @@ void GoL_destroy(game_graphic *game){
 }
 
 void GoL_display_ui(game_graphic *game) {
-    (game->config.state == PAUSED) ? SDL_Log("PAUSED\n"): SDL_Log("RUNNING\n");
     if(game->config.state == PAUSED) {
         SDL_Rect rect = {
             .w = 32, .h = 32, .x = 10, .y = 10
         };
         SDL_SetRenderDrawColor(game->graphics->renderer, 255,0,0, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(game->graphics->renderer, &rect);
-        SDL_RenderPresent(game->graphics->renderer);
     }
 }

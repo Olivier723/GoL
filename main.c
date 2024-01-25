@@ -36,8 +36,9 @@ int main(){
             GoL_handle_events(&game);
             display_grid(&game);
             GoL_display_ui(&game);
+            SDL_RenderPresent(game.graphics->renderer);
+            ms_frames = ms;
         }
-        ms_frames = ms;
 
         if(delta_ticks > game.config.tickrate){
             if(game.config.state == RUNNING) {
