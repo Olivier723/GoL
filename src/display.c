@@ -1,4 +1,4 @@
-#include "../include/display-GoL.h"
+#include "../include/display.h"
 
 // 0xAABBGGRR
 static GoL_color GoL_color_defs[] = {

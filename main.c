@@ -1,4 +1,4 @@
-#include "include/display-GoL.h"
+#include "include/display.h"
 #define FPS_LIMIT 60
 #define WIN_WIDTH 1600
 #define WIN_HEIGTH 1000
