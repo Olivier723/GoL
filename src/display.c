@@ -1,4 +1,5 @@
-#include "../include/display-GoL.h"
+#include "../include/display.h"
+#include <stdbool.h>
 
 // 0xAABBGGRR
 static GoL_color GoL_color_defs[] = {
@@ -10,6 +11,7 @@ static GoL_color GoL_color_defs[] = {
     [COLOR_CYAN]    = 0xFFFFFF00u,
     [COLOR_YELLOW]  = 0xFF00FFFFu,
     [COLOR_WHITE]   = 0xFFFFFFFFu,
+    [COLOR_DGREY]   = 0xFF202020u,
 };
 
 /**
@@ -19,7 +21,7 @@ static GoL_color GoL_color_defs[] = {
  * @param cell_width 
  * @param color_hex #AABBGGRR
  */
-graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color_code bg_clr, const char* win_title,
+graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color_code bg_clr, const char *win_title,
                            GoL_vec2 grid_size, GoL_color_code cell_clr){
     if(SDL_Init(SDL_INIT_VIDEO) < 0){
         fprintf(stderr, "[ERROR] Could not initialize SDL : %s", SDL_GetError());
@@ -52,11 +54,13 @@ graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color_code bg_clr, const char* w
 
     new_graphic->renderer = renderer;
     new_graphic->window = window;
+
     cell_graphic new_cell_graphic = {
         .cell_height = win_sz.y/grid_size.y,
         .cell_width = win_sz.x/grid_size.x,
         .cell_color = RGBA_FROM_HEX(GoL_color_defs[cell_clr]),
     };
+
     SDL_Color bg_color = RGBA_FROM_HEX(GoL_color_defs[bg_clr]);
     new_graphic->background_color = bg_color;
     new_graphic->cell_graph = new_cell_graphic;
@@ -78,8 +82,8 @@ graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color_code bg_clr, const char* w
 }
 
 void display_grid(game_graphic *game){
-    graphic *g = game->graphics;
-    cell_graphic cg = g->cell_graph;
+    const graphic *g = game->graphics;
+    const cell_graphic cg = g->cell_graph;
     SDL_SetRenderDrawColor(g->renderer, cg.cell_color.r, cg.cell_color.g, cg.cell_color.b, cg.cell_color.a);
     for (uint32_t i = 0; i < game->grid.size; ++i){
         for (uint32_t j = 0; j < game->grid.size; ++j){
@@ -89,6 +93,13 @@ void display_grid(game_graphic *game){
                 SDL_RenderFillRect(g->renderer, &rect);
             }
         }
+    }
+    const uint16_t cell_h = cg.cell_height;
+    const uint16_t cell_w = cg.cell_width;
+    SDL_SetRenderDrawColor(g->renderer, 50, 50, 50, 255);
+    for(uint32_t i = 0; i <= game->grid.size; ++i) {
+        SDL_RenderDrawLine(g->renderer,i * cell_w, 0, i * cell_w, game->grid.size * cell_h);
+        SDL_RenderDrawLine(g->renderer,0, i * cell_h, game->grid.size * cell_w, i * cell_h);
     }
 }
 

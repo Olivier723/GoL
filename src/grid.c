@@ -35,7 +35,11 @@ void set_neighbors(grid *grid, uint32_t x, uint32_t y, cell *cell){
 }
 
 void change_cell_state(cell *cell){
-    cell->state = !cell->state;
+    if (cell->state == DEAD) {
+        cell->state = ALIVE;
+        return;
+    }
+    cell->state = DEAD;
 }
 
 void kill_cell(cell *cell){
