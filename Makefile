@@ -3,7 +3,7 @@ INCLUDE=include
 SOURCE=src
 
 SDL: main.o grid.o display.o
-	cc -o GoL bin/main-SDL.o bin/grid.o bin/display.o $$(sdl2-config --libs)
+	cc -o GoL bin/main.o bin/grid.o bin/display.o $$(sdl2-config --libs)
 
 main.o: main.c
 	cc -o bin/main.o -c main.c $(FLAGS) $$(sdl2-config --cflags)
