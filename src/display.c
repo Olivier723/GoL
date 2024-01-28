@@ -7,7 +7,7 @@ static GoL_color GoL_color_defs[] = {
     [COLOR_RED]     = 0xFF0000FFu,
     [COLOR_BLUE]    = 0xFFFF0000u,
     [COLOR_GREEN]   = 0xFF00FF00u,
-    [COLOR_MAGENTA] = 0xFF00FFFFu,
+    [COLOR_MAGENTA] = 0xFFFF00FFu,
     [COLOR_CYAN]    = 0xFFFFFF00u,
     [COLOR_YELLOW]  = 0xFF00FFFFu,
     [COLOR_WHITE]   = 0xFFFFFFFFu,
@@ -65,8 +65,11 @@ graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color_code bg_clr, const char *w
     new_graphic->background_color = bg_color;
     new_graphic->cell_graph = new_cell_graphic;
 
-    SDL_DisplayMode dm;
+    new_graphic->grid_offset_x = 0.1f;
+    new_graphic->grid_offset_y = 0.1f;
 
+
+    SDL_DisplayMode dm;
     if (SDL_GetDesktopDisplayMode(0, &dm) != 0){
         SDL_Log("[ERROR] SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
         SDL_DestroyRenderer(new_graphic->renderer);
@@ -81,15 +84,28 @@ graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color_code bg_clr, const char *w
     return new_graphic;
 }
 
+inline GoL_vec2 get_win_dim(const graphic *g) {
+    int win_h, win_w;
+    SDL_GetWindowSize(g->window, &win_w, &win_h);
+    const GoL_vec2 offset = VEC(win_w * g->grid_offset_x, win_h * g->grid_offset_y);
+    return offset;
+}
+
 void display_grid(game_graphic *game){
     const graphic *g = game->graphics;
     const cell_graphic cg = g->cell_graph;
+    const GoL_vec2 win_dim = get_win_dim(g);
+
     SDL_SetRenderDrawColor(g->renderer, cg.cell_color.r, cg.cell_color.g, cg.cell_color.b, cg.cell_color.a);
     for (uint32_t i = 0; i < game->grid.size; ++i){
         for (uint32_t j = 0; j < game->grid.size; ++j){
             cell *current_cell = get_cell(&game->grid, i, j);
             if (current_cell->state == ALIVE){
-                SDL_Rect rect = {i * cg.cell_width, j * cg.cell_height, cg.cell_width, cg.cell_height};
+                SDL_Rect rect = {win_dim.x + i * cg.cell_width,
+                                 win_dim.y + j * cg.cell_height,
+                                 cg.cell_width,
+                                 cg.cell_height
+                };
                 SDL_RenderFillRect(g->renderer, &rect);
             }
         }
@@ -98,8 +114,8 @@ void display_grid(game_graphic *game){
     const uint16_t cell_w = cg.cell_width;
     SDL_SetRenderDrawColor(g->renderer, 50, 50, 50, 255);
     for(uint32_t i = 0; i <= game->grid.size; ++i) {
-        SDL_RenderDrawLine(g->renderer,i * cell_w, 0, i * cell_w, game->grid.size * cell_h);
-        SDL_RenderDrawLine(g->renderer,0, i * cell_h, game->grid.size * cell_w, i * cell_h);
+        SDL_RenderDrawLine(g->renderer,win_dim.x + i * cell_w, win_dim.y, i * cell_w - win_dim.x, game->grid.size * cell_h - win_dim.y);
+        SDL_RenderDrawLine(g->renderer,win_dim.y, win_dim.x + i * cell_h, game->grid.size * cell_w, i * cell_h);
     }
 }
 
