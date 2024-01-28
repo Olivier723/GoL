@@ -60,7 +60,13 @@ cell *get_cell(grid *grid, uint32_t x, uint32_t y);
  * @brief Inverts the state of the given cell
  * 
  */
-void change_cell_state(cell *c);
+inline void change_cell_state(cell *c){
+    if (c->state == DEAD) {
+        c->state = ALIVE;
+        return;
+    }
+    c->state = DEAD;
+}
 
 void kill_cell(cell *c);
 

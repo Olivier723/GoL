@@ -15,7 +15,7 @@ uint16_t get_neighbors_number(uint32_t x, uint32_t y, uint32_t size){
 
 cell *get_cell(grid *grid, uint32_t x, uint32_t y){
     if(x > grid->size || y > grid->size) return NULL;
-    return &(grid->cell_grid[x * grid->size + y]);
+    return grid->cell_grid + (x * grid->size + y);
 }
 
 void set_neighbors(grid *grid, uint32_t x, uint32_t y, cell *cell){
@@ -32,14 +32,6 @@ void set_neighbors(grid *grid, uint32_t x, uint32_t y, cell *cell){
             }
         }
     }
-}
-
-void change_cell_state(cell *cell){
-    if (cell->state == DEAD) {
-        cell->state = ALIVE;
-        return;
-    }
-    cell->state = DEAD;
 }
 
 void kill_cell(cell *cell){

@@ -17,7 +17,6 @@
             .r = GET_VALUE(color, RED_INDEX),  \
         }
 
-#define VEC(_x, _y) {.x = _x, .y = _y}
 
 
 typedef enum {
@@ -40,6 +39,7 @@ typedef struct {
     uint32_t y;
 }GoL_vec2;
 
+#define VEC(_x, _y) (GoL_vec2){.x = _x, .y = _y}
 typedef struct {
     uint16_t cell_height;
     uint16_t cell_width;
@@ -53,13 +53,14 @@ typedef struct {
     SDL_Color background_color;
     float grid_offset_x;
     float grid_offset_y;
+    uint32_t win_width, win_height;
 }graphic;
 
 typedef struct {
     graphic *graphics;
     game_config config;
     grid grid;
-    SDL_Event event;
+    // SDL_Event event;
 }game_graphic;
 
 /**

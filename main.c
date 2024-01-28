@@ -11,8 +11,8 @@
 #define TICKRATE 5
 
 int main(){
-    GoL_vec2 window_size = VEC(WIN_WIDTH, WIN_HEIGTH);
-    GoL_vec2 grid_size = VEC(GRIDSIZE, GRIDSIZE);
+    const GoL_vec2 window_size = VEC(WIN_WIDTH, WIN_HEIGTH);
+    const GoL_vec2 grid_size = VEC(GRIDSIZE, GRIDSIZE);
     graphic *graphic_mode = init_graphic_mode(window_size, COLOR_DGREY, NAME, grid_size, COLOR_CYAN);
 
     if(graphic_mode == NULL){

@@ -54,20 +54,20 @@ graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color_code bg_clr, const char *w
 
     new_graphic->renderer = renderer;
     new_graphic->window = window;
+    new_graphic->grid_offset_x = 0.1f;
+    new_graphic->grid_offset_y = 0.1f;
+    new_graphic->background_color = RGBA_FROM_HEX(GoL_color_defs[bg_clr]);
+    new_graphic->win_height = win_sz.y;
+    new_graphic->win_width = win_sz.x;
 
-    cell_graphic new_cell_graphic = {
-        .cell_height = win_sz.y/grid_size.y,
-        .cell_width = win_sz.x/grid_size.x,
+    const GoL_vec2 offset = VEC(win_sz.x * new_graphic->grid_offset_x, win_sz.y * new_graphic->grid_offset_y);
+    const cell_graphic new_cell_graphic = {
+        .cell_height = (win_sz.y - 2 * offset.y) / grid_size.y,
+        .cell_width = (win_sz.x - 2 * offset.x) / grid_size.x,
         .cell_color = RGBA_FROM_HEX(GoL_color_defs[cell_clr]),
     };
 
-    SDL_Color bg_color = RGBA_FROM_HEX(GoL_color_defs[bg_clr]);
-    new_graphic->background_color = bg_color;
     new_graphic->cell_graph = new_cell_graphic;
-
-    new_graphic->grid_offset_x = 0.1f;
-    new_graphic->grid_offset_y = 0.1f;
-
 
     SDL_DisplayMode dm;
     if (SDL_GetDesktopDisplayMode(0, &dm) != 0){
@@ -79,43 +79,38 @@ graphic *init_graphic_mode(GoL_vec2 win_sz, GoL_color_code bg_clr, const char *w
         return NULL;
     }
     SDL_SetWindowMaximumSize(new_graphic->window, dm.w, dm.h);
-    SDL_SetWindowMinimumSize(new_graphic->window,grid_size.x, grid_size.y);
+    SDL_SetWindowMinimumSize(new_graphic->window, grid_size.x, grid_size.y);
 
     return new_graphic;
-}
-
-inline GoL_vec2 get_win_dim(const graphic *g) {
-    int win_h, win_w;
-    SDL_GetWindowSize(g->window, &win_w, &win_h);
-    const GoL_vec2 offset = VEC(win_w * g->grid_offset_x, win_h * g->grid_offset_y);
-    return offset;
 }
 
 void display_grid(game_graphic *game){
     const graphic *g = game->graphics;
     const cell_graphic cg = g->cell_graph;
-    const GoL_vec2 win_dim = get_win_dim(g);
+    
+    const GoL_vec2 offset = VEC(g->win_width * g->grid_offset_x, g->win_height * g->grid_offset_y);
+    const uint16_t cell_h = cg.cell_height;
+    const uint16_t cell_w = cg.cell_width;
 
     SDL_SetRenderDrawColor(g->renderer, cg.cell_color.r, cg.cell_color.g, cg.cell_color.b, cg.cell_color.a);
     for (uint32_t i = 0; i < game->grid.size; ++i){
         for (uint32_t j = 0; j < game->grid.size; ++j){
-            cell *current_cell = get_cell(&game->grid, i, j);
+            const cell *current_cell = get_cell(&game->grid, i, j);
             if (current_cell->state == ALIVE){
-                SDL_Rect rect = {win_dim.x + i * cg.cell_width,
-                                 win_dim.y + j * cg.cell_height,
-                                 cg.cell_width,
-                                 cg.cell_height
+                SDL_Rect rect = {
+                    offset.x + i * cell_w,
+                    offset.y + j * cell_h,
+                    cell_w,
+                    cell_h
                 };
                 SDL_RenderFillRect(g->renderer, &rect);
             }
         }
     }
-    const uint16_t cell_h = cg.cell_height;
-    const uint16_t cell_w = cg.cell_width;
     SDL_SetRenderDrawColor(g->renderer, 50, 50, 50, 255);
     for(uint32_t i = 0; i <= game->grid.size; ++i) {
-        SDL_RenderDrawLine(g->renderer,win_dim.x + i * cell_w, win_dim.y, i * cell_w - win_dim.x, game->grid.size * cell_h - win_dim.y);
-        SDL_RenderDrawLine(g->renderer,win_dim.y, win_dim.x + i * cell_h, game->grid.size * cell_w, i * cell_h);
+        SDL_RenderDrawLine(g->renderer, offset.x + i * cell_w, offset.y, i * cell_w + offset.x, game->grid.size * cell_h + offset.y);
+        SDL_RenderDrawLine(g->renderer, offset.x, offset.y + i * cell_h, game->grid.size * cell_w + offset.x, i * cell_h + offset.y);
     }
 }
 
@@ -129,66 +124,89 @@ void GoL_clear_window(game_graphic *game){
     SDL_RenderClear(g->renderer);
 }
 
-game_config create_game_config(uint16_t frame_limit, uint16_t tickrate){
+inline game_config create_game_config(uint16_t frame_limit, uint16_t tickrate){
     game_config new_game = {
         .state = PAUSED,
-        .fps_limit = (double)1000/(double)frame_limit,
-        .tickrate = (double)1000/(double)tickrate,
+        .fps_limit = 1e3/(double)frame_limit,
+        .tickrate = 1e3/(double)tickrate,
     };
     return new_game;
 }
 
+inline static void handle_key_event(const SDL_KeyboardEvent *key, game_graphic *game) {
+    switch (key->keysym.sym){
+    case SDLK_SPACE:
+        if(game->config.state == PAUSED){
+            game->config.state = RUNNING;
+        }
+        else if(game->config.state == RUNNING){
+            game->config.state = PAUSED;
+        }
+        break;
+
+    case SDLK_ESCAPE:
+        game->config.state = QUIT;
+        break;
+
+    case SDLK_c:
+        for(size_t i = 0; i < game->grid.size*game->grid.size; ++i){
+            kill_cell(get_cell(&game->grid, i/game->grid.size, i%game->grid.size));
+        }
+        break;
+    
+    default:
+        break;
+    }
+}
+
+inline static void update_window_size(game_graphic *game) {
+    int win_h, win_w;
+    SDL_GetWindowSize(game->graphics->window, &win_w, &win_h);
+    game->graphics->win_height = win_h;
+    game->graphics->win_width = win_w;
+}
+
+inline static void handle_window_event(const SDL_WindowEvent *win_e, game_graphic *game) {
+    switch(win_e->event) {
+    case SDL_WINDOWEVENT_RESIZED:
+        update_window_size(game);
+        const GoL_vec2 offset = VEC(game->graphics->win_width * game->graphics->grid_offset_x, game->graphics->win_height * game->graphics->grid_offset_y);
+        game->graphics->cell_graph.cell_height = (game->graphics->win_height - 2 * offset.y) / game->grid.size;
+        game->graphics->cell_graph.cell_width = (game->graphics->win_width - 2 * offset.x) / game->grid.size;
+        break;
+    }
+}
+
 void GoL_handle_events(game_graphic *game){
-    SDL_Event *e = &game->event;
-    bool mouse_down = false;
-    while (SDL_PollEvent(e)){
-        switch (e->type){
+    SDL_Event e;
+    while (SDL_PollEvent(&e)){
+        switch (e.type){
         case SDL_QUIT:
             game->config.state = QUIT;
             break;
 
         case SDL_KEYUP:
-            switch (e->key.keysym.sym){
-            case SDLK_SPACE:
-                if(game->config.state == PAUSED){
-                    game->config.state = RUNNING;
-                }
-                else if(game->config.state == RUNNING){
-                    game->config.state = PAUSED;
-                }
-                break;
-
-            case SDLK_ESCAPE:
-                game->config.state = QUIT;
-                break;
-
-            case SDLK_c:
-                for(size_t i = 0; i < game->grid.size*game->grid.size; ++i){
-                    kill_cell(get_cell(&game->grid, i/game->grid.size, i%game->grid.size));
-                }
-                break;
-            
-            default:
-                break;
-            }
+            handle_key_event(&(e.key), game);
             break;
 
         case SDL_MOUSEBUTTONDOWN:  
             //Faire gaffe quand la taille de la grid est grande le calcul sort une valeur hors de la grille
-            if(!mouse_down && e->button.button == SDL_BUTTON_LEFT){
-                mouse_down = true;
+            if(e.button.button == SDL_BUTTON_LEFT){
+                update_window_size(game);
                 int x = 0, y = 0;
                 SDL_GetMouseState(&x, &y);
-                x /= game->graphics->cell_graph.cell_width;
-                y /= game->graphics->cell_graph.cell_height;
+                x = (x - game->graphics->win_width * game->graphics->grid_offset_x) / game->graphics->cell_graph.cell_width;
+                y = (y - game->graphics->win_height * game->graphics->grid_offset_y) / game->graphics->cell_graph.cell_height;
                 cell *temp_cell = get_cell(&game->grid, x, y);
                 if (temp_cell != NULL) change_cell_state(temp_cell);
             }
             break;
         
-        case SDL_MOUSEBUTTONUP:
-            mouse_down = false;
-            break;
+        case SDL_WINDOWEVENT:
+            if(!(e.window.windowID == SDL_GetWindowID(game->graphics->window))){
+                game->config.state = QUIT;
+            }
+            handle_window_event(&(e.window), game);
 
         default:
             break;
