@@ -153,7 +153,6 @@ void GoL_handle_events(game_graphic *game){
                 break;
             
             default:
-                //If this reaches, it means that no key used by this program was pressed
                 break;
             }
             break;

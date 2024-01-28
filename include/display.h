@@ -8,7 +8,7 @@
 #define GREEN_INDEX 1
 #define BLUE_INDEX 2
 #define ALPHA_INDEX 3
-#define GET_VALUE(color, value) (((color) >> ((value) * sizeof(unsigned char) * 8)) & (0xFFu))
+#define GET_VALUE(color, value) (((color) >> ((value) * 8)) & (0xFFu))
 //Extracts an SDL_Color object from a Hex color
 #define RGBA_FROM_HEX(color) (SDL_Color){           \
             .a = GET_VALUE(color, ALPHA_INDEX),\
