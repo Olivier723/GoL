@@ -51,6 +51,8 @@ typedef struct {
     SDL_Renderer *renderer;
     cell_graphic cell_graph;
     SDL_Color background_color;
+    float grid_offset_x;
+    float grid_offset_y;
 }graphic;
 
 typedef struct {
@@ -59,17 +61,6 @@ typedef struct {
     grid grid;
     SDL_Event event;
 }game_graphic;
-
-typedef enum {
-    NOT_PRESSED = 0x00u,
-    PRESSED     = 0x01u,
-}key_state;
-
-typedef enum {
-    ESCAPE = 0x01u,
-    PAUSE  = 0x02u,
-    CLEAR  = 0x04u,
-}GoL_action_keys;
 
 /**
  * @brief Takes the grid of cells and converts it into visual information on the SDL window associated
